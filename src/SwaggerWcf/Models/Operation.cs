@@ -43,7 +43,7 @@ namespace SwaggerWcf.Models
         /// v2
         /// </summary>
         [JsonProperty("responses")]
-        public Dictionary<string, Response> Responses { get; set; }
+        public Responses Responses { get; set; }
 
         /// <summary>
         /// v2

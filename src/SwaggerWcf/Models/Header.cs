@@ -24,6 +24,9 @@ namespace SwaggerWcf.Models
         [JsonProperty("collectionFormat")]
         public string CollectionFormat { get; set; }
 
+         [JsonProperty("default")]
+        public string _default { get; set; }
+
         // TODO: other properties
 
     }
