@@ -10,13 +10,9 @@ namespace SwaggerWcf.Support
     {
         internal static string Process(Service service)
         {
-            var sb = new StringBuilder();
-            var sw = new StringWriter(sb);
-            using (JsonWriter writer = new JsonTextWriter(sw))
-            {
-                service.Serialize(writer);
-            }
-            return sb.ToString();
+            var json = JsonConvert.SerializeObject(service,
+                new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
+            return json;
         }
     }
 }

@@ -5,56 +5,24 @@ namespace SwaggerWcf.Models
 {
     public class Info
     {
-        public string Version { get; set; }
-
+        [JsonProperty("title")]
         public string Title { get; set; }
 
+        [JsonProperty("description")]
         public string Description { get; set; }
 
+        [JsonProperty("termsOfService")]
         public string TermsOfService { get; set; }
 
+        [JsonProperty("contact")]
         public InfoContact Contact { get; set; }
 
+        [JsonProperty("license")]
         public InfoLicense License { get; set; }
 
-        internal void Serialize(JsonWriter writer)
-        {
-            writer.WriteStartObject();
+        [JsonProperty("version")]
+        public string Version { get; set; }
 
-            if (!string.IsNullOrWhiteSpace(Version))
-            {
-                writer.WritePropertyName("version");
-                writer.WriteValue(Version);
-            }
-            if (!string.IsNullOrWhiteSpace(Title))
-            {
-                writer.WritePropertyName("title");
-                writer.WriteValue(Title);
-            }
-            if (!string.IsNullOrWhiteSpace(Description))
-            {
-                writer.WritePropertyName("description");
-                writer.WriteValue(Description);
-            }
-            if (!string.IsNullOrWhiteSpace(TermsOfService))
-            {
-                writer.WritePropertyName("termsOfService");
-                writer.WriteValue(TermsOfService);
-            }
-
-            if (Contact != null)
-            {
-                writer.WritePropertyName("contact");
-                Contact.Serialize(writer);
-            }
-
-            if (License != null)
-            {
-                writer.WritePropertyName("license");
-                License.Serialize(writer);
-            }
-
-            writer.WriteEndObject();
-        }
+        
     }
 }

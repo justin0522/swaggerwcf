@@ -5,26 +5,11 @@ namespace SwaggerWcf.Models
 {
     internal class ExternalDocumentation
     {
+        [JsonProperty("description")]
         public string Description { get; set; }
 
+        [JsonProperty("url")]
         public string Url { get; set; }
 
-        public void Serialize(JsonWriter writer)
-        {
-            writer.WriteStartObject();
-
-            if (!string.IsNullOrWhiteSpace(Description))
-            {
-                writer.WritePropertyName("description");
-                writer.WriteValue(Description);
-            }
-            if (!string.IsNullOrWhiteSpace(Url))
-            {
-                writer.WritePropertyName("url");
-                writer.WriteValue(Url);
-            }
-
-            writer.WriteEndObject();
-        }
     }
 }

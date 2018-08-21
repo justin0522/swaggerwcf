@@ -6,138 +6,80 @@ namespace SwaggerWcf.Models
 {
     internal class Schema
     {
-        public TypeFormat TypeFormat { get; set; } // for primitives
+        [JsonProperty("$ref")]
+        public string _ref { get; set; } // for references
 
-        public TypeFormat ArrayTypeFormat { get; set; } // for primitives
+        [JsonProperty("format")]
+        public string Format { get; set; }
 
-        public string Ref { get; set; } // for references
+        [JsonProperty("title")]
+        public string Title { get; set; }
 
-        public string Name { get; set; }
-
+        [JsonProperty("description")]
         public string Description { get; set; }
 
-        public Schema ParentSchema { get; set; } //TODO: Composition and Polymorphism Support
+        [JsonProperty("default")]
+        public string Default { get; set; }
 
-        public ExternalDocumentation ExternalDocumentation { get; set; }
-
+        [JsonProperty("required")]
         public List<string> Required { get; set; }
 
-        public List<Property> Properties { get; set; }
+        [JsonProperty("enum")]
+        public List<string> _enum { get; set; }
 
-        public void Serialize(JsonWriter writer)
-        {
-            if (TypeFormat.Type == ParameterType.Object)
-            {
-                // complex object
+        [JsonProperty("type")]
+        public string _type { get; set; }
 
-                if (!string.IsNullOrWhiteSpace(Description))
-                {
-                    writer.WritePropertyName("description");
-                    writer.WriteValue(Description);
-                }
+        [JsonProperty("xml")]
+        public Xml xml { get; set; }
 
-                if (ParentSchema != null)
-                {
-                    writer.WritePropertyName("allOf");
+        [JsonProperty("schema")]
+        public Schema Items { get; set; } //TODO: Composition and Polymorphism Support
 
-                    writer.WriteStartArray();
+        [JsonProperty("externalDocumentation")]
+        public ExternalDocumentation ExternalDocumentation { get; set; }
 
-                    writer.WritePropertyName("$ref");
-                    writer.WriteValue(string.Format("#/definitions/{0}", ParentSchema.Name));
+        [JsonProperty("properties")]
+        public Dictionary<string, Schema> Properties { get; set; }
 
-                    writer.WriteStartObject();
-                }
+        [JsonProperty("example")]
+        public object Example { get; set; }
 
-                SerializeRequired(writer);
+        [JsonProperty("maximum")]
+        public object Maximum { get; set; }
 
-                SerializeExternalDocs(writer);
+        [JsonProperty("exclusiveMaximum")]
+        public object ExclusiveMaximum { get; set; }
 
-                SerializeProperties(writer);
+        [JsonProperty("minimum")]
+        public object Minimum { get; set; }
 
-                if (ParentSchema != null)
-                {
-                    writer.WriteEndObject();
+        [JsonProperty("exclusiveMinimum")]
+        public object ExclusiveMinimum { get; set; }
 
-                    writer.WriteEndArray();
-                }
-            }
-            if (TypeFormat.Type != ParameterType.Unknown)
-            {
-                writer.WritePropertyName("type");
-                writer.WriteValue(TypeFormat.Type.ToString().ToLower());
-                if (!string.IsNullOrWhiteSpace(TypeFormat.Format))
-                {
-                    writer.WritePropertyName("format");
-                    writer.WriteValue(TypeFormat.Format);
-                }
+        [JsonProperty("maxLength")]
+        public object MaxLength { get; set; }
 
-                if (TypeFormat.Type == ParameterType.Array)
-                {
-                    writer.WritePropertyName("items");
+        [JsonProperty("minLength")]
+        public object MinLength { get; set; }
 
-                    writer.WriteStartObject();
+        [JsonProperty("pattern")]
+        public object Pattern { get; set; }
 
-                    if (ArrayTypeFormat.IsPrimitiveType)
-                    {
-                        writer.WritePropertyName("type");
-                        writer.WriteValue(ArrayTypeFormat.Type.ToString().ToLower());
-                        if (!string.IsNullOrWhiteSpace(ArrayTypeFormat.Format))
-                        {
-                            writer.WritePropertyName("format");
-                            writer.WriteValue(ArrayTypeFormat.Format);
-                        }
-                    }
-                    else
-                    {
-                        writer.WritePropertyName("$ref");
-                        writer.WriteValue(string.Format("#/definitions/{0}", Ref));
-                    }
+        [JsonProperty("maxItems")]
+        public object MaxItems { get; set; }
 
-                    writer.WriteEndObject();
-                }
-            }
-            else if (!string.IsNullOrWhiteSpace(Ref))
-            {
-                writer.WritePropertyName("$ref");
-                writer.WriteValue(string.Format("#/definitions/{0}", Ref));
-            }
-        }
+        [JsonProperty("minItems")]
+        public object MinItems { get; set; }
 
-        private void SerializeRequired(JsonWriter writer)
-        {
-            if (Required != null && Required.Any())
-            {
-                writer.WritePropertyName("required");
-                writer.WriteStartArray();
-                foreach (string req in Required)
-                {
-                    writer.WriteValue(req);
-                }
-                writer.WriteEndArray();
-            }
-        }
+        [JsonProperty("uniqueItems")]
+        public object UniqueItems { get; set; }
 
-        private void SerializeExternalDocs(JsonWriter writer)
-        {
-            if (ExternalDocumentation != null)
-            {
-                writer.WritePropertyName("externalDocs");
-                ExternalDocumentation.Serialize(writer);
-            }
-        }
+        [JsonProperty("multipleOf")]
+        public object MultipleOf { get; set; }
 
-        private void SerializeProperties(JsonWriter writer)
-        {
-            if (Properties != null && Properties.Any())
-            {
-                writer.WritePropertyName("properties");
-                writer.WriteStartArray();
-                foreach (Property p in Properties)
-                {
-                    p.Serialize(writer);
-                }
-                writer.WriteEndArray();
-            }
-        }
+        // TODO: other properties
+
+        public TypeFormat TypeFormat { get; set; }
     }
 }

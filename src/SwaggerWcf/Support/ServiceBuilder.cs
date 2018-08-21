@@ -106,7 +106,7 @@ namespace SwaggerWcf.Support
 
         private static void BuildPaths(Service service, IList<string> hiddenTags, List<string> visibleTags, IList<Type> definitionsTypesList)
         {
-            service.Paths = new List<Path>();
+            service.Paths = new Path();
 
             var types = GetAssemblyTypes(hiddenTags);
             var useBasePathProperty = types.Select(t => t.GetCustomAttribute<SwaggerWcfAttribute>().ServicePath)
@@ -117,7 +117,7 @@ namespace SwaggerWcf.Support
             {
                 var da = ti.GetCustomAttribute<SwaggerWcfAttribute>();
 
-                if (service.Info is null)
+                if (service.Info == null)
                     service.Info = ti.GetServiceInfo();
 
                 var mapper = new Mapper(hiddenTags, visibleTags);
@@ -139,8 +139,8 @@ namespace SwaggerWcf.Support
                         basePath = "/" + basePath;
                 }
 
-                var paths = mapper.FindMethods(ti.AsType(), definitionsTypesList, basePath);
-                service.Paths.AddRange(paths);
+                service.Paths = mapper.FindMethods(ti.AsType(), definitionsTypesList, basePath);
+                //service.Paths.AddRange(paths);
             }
         }
 
@@ -175,7 +175,7 @@ namespace SwaggerWcf.Support
         private static void BuildPaths<TBusiness>(Service service, IList<string> hiddenTags, List<string> visibleTags, IList<Type> definitionsTypesList)
         {
             var type = typeof(TBusiness);
-            service.Paths = new List<Path>();
+            //service.Paths = new List<Path>();
 
             var da = type.GetCustomAttribute<SwaggerWcfAttribute>();
             if (da == null || hiddenTags.Any(ht => ht == type.Name))
@@ -189,8 +189,8 @@ namespace SwaggerWcf.Support
             if (service.BasePath.EndsWith("/"))
                 service.BasePath = service.BasePath.Substring(0, service.BasePath.Length - 1);
 
-            var paths = mapper.FindMethods(type, definitionsTypesList);
-            service.Paths.AddRange(paths);
+           service.Paths = mapper.FindMethods(type, definitionsTypesList);
+            //service.Paths.AddRange(paths);
         }
     }
 }

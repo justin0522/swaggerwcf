@@ -13,14 +13,14 @@ namespace SwaggerWcf.Support
     internal static class TypePropertiesProcessor
     {
 
-        public static void ProcessProperties(Type definitionType, DefinitionSchema schema, IList<string> hiddenTags,
+        public static void ProcessProperties(Type definitionType, Schema schema, IList<string> hiddenTags,
                                               Stack<Type> typesStack)
         {
             PropertyInfo[] properties = definitionType.GetProperties();
 
             foreach (PropertyInfo propertyInfo in properties)
             {
-                DefinitionProperty prop = ProcessProperty(propertyInfo, hiddenTags, typesStack);
+                Schema prop = ProcessProperty(propertyInfo, hiddenTags, typesStack);
 
                 if (prop == null)
                     continue;
@@ -40,7 +40,7 @@ namespace SwaggerWcf.Support
                         if (st.Type == ParameterType.Array || st.Type == ParameterType.Object)
                         {
                             prop.Items.TypeFormat = new TypeFormat(ParameterType.Unknown, null);
-                            prop.Items.Ref = t.GetModelName();
+                            prop.Items._ref = t.GetModelName();
                         }
                         else
                         {
@@ -49,18 +49,18 @@ namespace SwaggerWcf.Support
                     }
                 }
 
-                if (prop.Required)
-                {
-                    if (schema.Required == null)
-                        schema.Required = new List<string>();
+                //if (prop.Required)
+                //{
+                //    if (schema.Required == null)
+                //        schema.Required = new List<string>();
 
-                    schema.Required.Add(prop.Title);
-                }
-                schema.Properties.Add(prop);
+                //    schema.Required.Add(prop.Title);
+                //}
+                schema.Properties.Add(propertyInfo.Name, prop);
             }
         }
 
-        private static DefinitionProperty ProcessProperty(PropertyInfo propertyInfo, IList<string> hiddenTags,
+        private static Schema ProcessProperty(PropertyInfo propertyInfo, IList<string> hiddenTags,
                                                           Stack<Type> typesStack)
         {
             if (propertyInfo.GetCustomAttribute<SwaggerWcfHiddenAttribute>() != null
@@ -71,7 +71,7 @@ namespace SwaggerWcf.Support
 
             TypeFormat typeFormat = Helpers.MapSwaggerType(propertyInfo.PropertyType, null);
 
-            DefinitionProperty prop = new DefinitionProperty { Title = propertyInfo.Name };
+            Schema prop = new Schema { Title = propertyInfo.Name };
 
             DataMemberAttribute dataMemberAttribute = propertyInfo.GetCustomAttribute<DataMemberAttribute>();
             if (dataMemberAttribute != null)
@@ -79,18 +79,18 @@ namespace SwaggerWcf.Support
                 if (!string.IsNullOrEmpty(dataMemberAttribute.Name))
                     prop.Title = dataMemberAttribute.Name;
 
-                prop.Required = dataMemberAttribute.IsRequired;
+                //prop.Required = dataMemberAttribute.IsRequired;
             }
 
             // Special case - if it came out required, but we unwrapped a null-able type,
             // then it's necessarily not required.  Ideally this would only set the default,
             // but we can't tell the difference between an explicit declaration of
             // IsRequired =false on the DataMember attribute and no declaration at all.
-            if (prop.Required && propertyInfo.PropertyType.IsGenericType &&
-                propertyInfo.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
-            {
-                prop.Required = false;
-            }
+            //if (prop.Required && propertyInfo.PropertyType.IsGenericType &&
+            //    propertyInfo.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+            //{
+            //    prop.Required = false;
+            //}
 
             DescriptionAttribute descriptionAttribute = propertyInfo.GetCustomAttribute<DescriptionAttribute>();
             if (descriptionAttribute != null)
@@ -106,7 +106,7 @@ namespace SwaggerWcf.Support
             {
                 typesStack.Push(propertyInfo.PropertyType);
 
-                prop.Ref = propertyInfo.PropertyType.GetModelName();
+                prop._ref = propertyInfo.PropertyType.GetModelName();
 
                 return prop;
             }
@@ -121,7 +121,7 @@ namespace SwaggerWcf.Support
                     if (subTypeFormat.Type == ParameterType.Object)
                         typesStack.Push(subType);
 
-                    prop.Items = new ParameterItems
+                    prop.Items = new Schema
                     {
                         TypeFormat = subTypeFormat
                     };
@@ -130,7 +130,7 @@ namespace SwaggerWcf.Support
 
             if ((prop.TypeFormat.Type == ParameterType.Integer && prop.TypeFormat.Format == "enum") || (prop.TypeFormat.Type == ParameterType.Array && prop.Items.TypeFormat.Format == "enum"))
             {
-                prop.Enum = new List<int>();
+                prop._enum = new List<string>();
 
                 Type propType = propertyInfo.PropertyType;
 
@@ -145,7 +145,7 @@ namespace SwaggerWcf.Support
                     string enumMemberDescription = DefinitionsBuilder.GetEnumDescription((Enum)enumMemberItem);
                     enumMemberDescription = (string.IsNullOrWhiteSpace(enumMemberDescription)) ? "" : $"({enumMemberDescription})";
                     int enumMemberValue = DefinitionsBuilder.GetEnumMemberValue(propType, enumName);
-                    if (prop.Description != null) prop.Enum.Add(enumMemberValue);
+                    if (prop.Description != null) prop._enum.Add(enumMemberValue.ToString());
                     enumDescription += $"    {enumName}{System.Web.HttpUtility.HtmlEncode(" = ")}{enumMemberValue} {enumMemberDescription}\r\n";
                 }
 

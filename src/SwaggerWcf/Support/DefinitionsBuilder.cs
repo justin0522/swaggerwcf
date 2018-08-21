@@ -11,12 +11,12 @@ namespace SwaggerWcf.Support
 {
     internal sealed class DefinitionsBuilder
     {
-        public static List<Definition> Process(IList<string> hiddenTags, IList<string> visibleTags, List<Type> definitionsTypes)
+        public static Definitions Process(IList<string> hiddenTags, IList<string> visibleTags, List<Type> definitionsTypes)
         {
             if (definitionsTypes == null || !definitionsTypes.Any())
-                return new List<Definition>(0);
+                return new Definitions();
 
-            List<Definition> definitions = new List<Definition>();
+            Definitions definitions = new Definitions();
             List<Type> processedTypes = new List<Type>();
             Stack<Type> typesStack =
                 new Stack<Type>(definitionsTypes.GroupBy(t => t.FullName).Select(grp => grp.First()));
@@ -28,9 +28,9 @@ namespace SwaggerWcf.Support
                     continue;
 
                 processedTypes.Add(t);
-                Definition definition = ConvertTypeToDefinition(t, hiddenTags, typesStack);
+                Schema definition = ConvertTypeToDefinition(t, hiddenTags, typesStack);
                 if (definition != null)
-                    definitions.Add(definition);
+                    definitions.Add(t.GetModelName(), definition);
             }
 
             return definitions;
@@ -49,25 +49,27 @@ namespace SwaggerWcf.Support
             return type.GetCustomAttributes<SwaggerWcfTagAttribute>().Select(t => t.TagName).Any(hiddenTags.Contains);
         }
 
-        private static Definition ConvertTypeToDefinition(Type definitionType, IList<string> hiddenTags,
+        private static Schema ConvertTypeToDefinition(Type definitionType, IList<string> hiddenTags,
                                                           Stack<Type> typesStack)
         {
-            DefinitionSchema schema = new DefinitionSchema
+            Schema schema = new Schema
             {
-                Name = definitionType.GetModelName()
+                Title = definitionType.GetModelName()
             };
 
             ProcessTypeAttributes(definitionType, schema);
 
             // process
-            schema.TypeFormat = Helpers.MapSwaggerType(definitionType, null);
+            var typeFormat = Helpers.MapSwaggerType(definitionType, null);
 
-            if (schema.TypeFormat.IsPrimitiveType)
+            if (typeFormat.IsPrimitiveType)
                 return null;
+            schema._type = typeFormat.Type.ToString().ToLower();
+            schema.Format = typeFormat.Format;
 
-            if (schema.TypeFormat.Type == ParameterType.Integer && schema.TypeFormat.Format == "enum")
+            if (schema._type == ParameterType.Integer.ToString().ToLower() && schema.Format == "enum")
             {
-                schema.Enum = new List<int>();
+                schema._enum = new List<string>();
 
                 Type propType = definitionType;
 
@@ -77,33 +79,30 @@ namespace SwaggerWcf.Support
                 List<string> listOfEnumNames = propType.GetEnumNames().ToList();
                 foreach (string enumName in listOfEnumNames)
                 {
-                    schema.Enum.Add(GetEnumMemberValue(propType, enumName));
+                    schema._enum.Add(GetEnumMemberValue(propType, enumName).ToString());
                 }
             }
-            else if (schema.TypeFormat.Type == ParameterType.Array)
+            else if (schema._type == ParameterType.Array.ToString().ToLower())
             {
                 Type t = GetEnumerableType(definitionType);
 
                 if (t != null)
                 {
-                    schema.Ref = definitionType.GetModelName();
+                    schema._ref = definitionType.GetModelName();
                     typesStack.Push(t);
                 }
             }
             else
             {
-                schema.Properties = new List<DefinitionProperty>();
+                schema.Properties = new Dictionary<string, Schema>();
                 TypePropertiesProcessor.ProcessProperties(definitionType, schema, hiddenTags, typesStack);
                 TypeFieldsProcessor.ProcessFields(definitionType, schema, hiddenTags, typesStack);
             }
 
-            return new Definition
-            {
-                Schema = schema
-            };
+            return schema;
         }
 
-        private static void ProcessTypeAttributes(Type definitionType, DefinitionSchema schema)
+        private static void ProcessTypeAttributes(Type definitionType, Schema schema)
         {
             DescriptionAttribute descAttr = definitionType.GetCustomAttribute<DescriptionAttribute>();
             if (descAttr != null)
@@ -124,7 +123,7 @@ namespace SwaggerWcf.Support
                 }
 
                 if (!string.IsNullOrWhiteSpace(definitionAttr.ModelName))
-                    schema.Name = definitionAttr.ModelName;
+                    schema.Title = definitionAttr.ModelName;
             }
         }
 
@@ -157,7 +156,7 @@ namespace SwaggerWcf.Support
             }
         }
 
-        public static void ApplyAttributeOptions(PropertyInfo propertyInfo, DefinitionProperty prop)
+        public static void ApplyAttributeOptions(PropertyInfo propertyInfo, Schema prop)
         {
             // Use the DataContract [DefaultValue] as the default, by default
             var defAttr = propertyInfo.GetCustomAttributes<DefaultValueAttribute>().LastOrDefault();
@@ -175,7 +174,7 @@ namespace SwaggerWcf.Support
             ApplyAttributeOptions(attrs, prop);
         }
 
-        public static void ApplyAttributeOptions(FieldInfo fieldInfo, DefinitionProperty prop)
+        public static void ApplyAttributeOptions(FieldInfo fieldInfo, Schema prop)
         {
             // Use the DataContract [DefaultValue] as the default, by default
             var defAttr = fieldInfo.GetCustomAttributes<DefaultValueAttribute>().LastOrDefault();
@@ -193,11 +192,11 @@ namespace SwaggerWcf.Support
             ApplyAttributeOptions(attrs, prop);
         }
 
-        public static void ApplyAttributeOptions(IEnumerable<SwaggerWcfPropertyAttribute> attrs, DefinitionProperty prop)
+        public static void ApplyAttributeOptions(IEnumerable<SwaggerWcfPropertyAttribute> attrs, Schema prop)
         {
             ApplyIfValid(LastValidValue(attrs, a => a.Title), x => prop.Title = x);
             ApplyIfValid(LastValidValue(attrs, a => a.Description), x => prop.Description = x);
-            ApplyIfValid(LastValidValue(attrs, a => a._Required), x => prop.Required = x.Value);
+            //ApplyIfValid(LastValidValue(attrs, a => a._Required), x => prop.Required = x.Value);
             //ApplyIfValid(LastValidValue(attrs, a => a._AllowEmptyValue),  x => prop.AllowEmptyValue  = x.Value);
             //ApplyIfValid(LastValidValue(attrs, a => a._CollectionFormat), x => prop.CollectionFormat = x.Value);
             ApplyIfValid(LastValidValue(attrs, a => a.Default), x => prop.Default = x);
@@ -214,7 +213,7 @@ namespace SwaggerWcf.Support
             ApplyIfValid(LastValidValue(attrs, a => a._UniqueItems), x => prop.UniqueItems = x.Value);
             ApplyIfValid(LastValidValue(attrs, a => a._MultipleOf), x => prop.MultipleOf = x.Value);
         }
-        
+
         public static int GetEnumMemberValue(Type enumType, string enumName)
         {
             if (string.IsNullOrWhiteSpace(enumName))

@@ -25,12 +25,12 @@ namespace SwaggerWcf.Support
         internal readonly IEnumerable<string> HiddenTags;
         internal readonly IEnumerable<string> VisibleTags;
 
-        internal IEnumerable<Path> FindMethods(Type markedType, IList<Type> definitionsTypesList, string basePath = null)
+        internal Path FindMethods(Type markedType, IList<Type> definitionsTypesList, string basePath = null)
         {
-            List<Path> paths = new List<Path>();
-            List<Tuple<string, PathAction>> pathActions = new List<Tuple<string, PathAction>>();
+            Path paths = new Path();
+            List<Tuple<string, string, Operation>> pathActions = new List<Tuple<string, string, Operation>>();
 
-            List <Type> types;
+            List<Type> types;
             Type serviceType;
             if (markedType.IsInterface)
             {
@@ -56,7 +56,7 @@ namespace SwaggerWcf.Support
 
             foreach (Type i in types)
             {
-                Attribute dc = i.GetCustomAttribute(typeof(ServiceContractAttribute));
+                Attribute dc = i.GetCustomAttribute<ServiceContractAttribute>();
                 if (dc == null)
                     continue;
 
@@ -92,26 +92,55 @@ namespace SwaggerWcf.Support
                 if (string.IsNullOrWhiteSpace(basePath) == false)
                     path = basePath + path;
 
-                GetPath(path, paths).Actions.Add(pathAction.Item2);
+                //GetPath(path, paths).Actions.Add(pathAction.Item2);
+                var pathItem = GetPath(path, paths);
+                switch (pathAction.Item2)
+                {
+                    case "get":
+                        pathItem.Get = pathAction.Item3;
+                        break;
+                    case "post":
+                        pathItem.Post = pathAction.Item3;
+                        break;
+                    case "put":
+                        pathItem.Put = pathAction.Item3;
+                        break;
+                    case "delete":
+                        pathItem.Delete = pathAction.Item3;
+                        break;
+                    case "patch":
+                        pathItem.Patch = pathAction.Item3;
+                        break;
+                    case "options":
+                        pathItem.Options = pathAction.Item3;
+                        break;
+                    case "head":
+                        pathItem.Head = pathAction.Item3;
+                        break;
+                    default:
+                        pathItem.Get = pathAction.Item3;
+                        break;
+                }
             }
 
             return paths;
         }
 
-        private Path GetPath(string id, List<Path> paths)
+        private PathItem GetPath(string id, Path paths)
         {
-            var path = paths.FirstOrDefault(p => p.Id == id);
-            if (path == null)
+            var pathItem = paths.FirstOrDefault(p => p.Key == id).Value;
+            if (pathItem == null)
             {
-                path = new Path
-                {
-                    Id = id,
-                    Actions = new List<PathAction>()
-                };
-                paths.Add(path);
+                //path = new Path
+                //{
+                //    Id = id,
+                //    Actions = new List<PathAction>()
+                //};
+                pathItem = new PathItem();
+                paths.Add(id, pathItem);
             }
 
-            return path;
+            return pathItem;
         }
 
         private static string ConcatPaths(string basePath, string pathUrl)
@@ -126,7 +155,7 @@ namespace SwaggerWcf.Support
             return path;
         }
 
-        internal IEnumerable<Tuple<string, PathAction>> GetActions(MethodInfo[] targetMethods,
+        internal IEnumerable<Tuple<string, string, Operation>> GetActions(MethodInfo[] targetMethods,
                                                                    MethodInfo[] interfaceMethods,
                                                                    IList<Type> definitionsTypesList)
         {
@@ -224,9 +253,9 @@ namespace SwaggerWcf.Support
                     uriTemplate = ConcatPaths(operationPath, uriTemplate);
                 }
 
-                PathAction operation = new PathAction
+                Operation operation = new Operation
                 {
-                    Id = httpMethod.ToLowerInvariant(),
+                    //Id = httpMethod.ToLowerInvariant(),
                     Summary = summary,
                     Description = description,
                     Tags =
@@ -244,7 +273,7 @@ namespace SwaggerWcf.Support
                 //try to map each implementation parameter to the uriTemplate.
                 ParameterInfo[] parameters = declaration.GetParameters();
                 if (parameters.Any())
-                    operation.Parameters = new List<ParameterBase>();
+                    operation.Parameters = new List<Parameter>();
 
                 List<SwaggerWcfHeaderAttribute> headers =
                     implementation.GetCustomAttributes<SwaggerWcfHeaderAttribute>().ToList();
@@ -256,14 +285,15 @@ namespace SwaggerWcf.Support
                 // parameters - headers
                 foreach (SwaggerWcfHeaderAttribute attr in headers)
                 {
-                    operation.Parameters.Add(new ParameterPrimitive
+                    operation.Parameters.Add(new Parameter
                     {
                         Name = attr.Name,
                         Description = attr.Description,
                         Default = attr.DefaultValue,
-                        In = InType.Header,
+                        In = InType.Header.ToString().ToLower(),
                         Required = attr.Required,
-                        TypeFormat = new TypeFormat(ParameterType.String, null)
+                        Type = "string",
+                        Format = null
                     });
                 }
 
@@ -329,12 +359,12 @@ namespace SwaggerWcf.Support
                 {
                     TypeFormat typeFormat = Helpers.MapSwaggerType(typeBuilder.Type, definitionsTypesList);
 
-                    operation.Parameters.Add(new ParameterSchema
+                    operation.Parameters.Add(new Parameter
                     {
                         Name = implementation.GetWrappedName(declaration) + "Wrapper",
-                        In = InType.Body,
+                        In = InType.Body.ToString().ToLower(),
                         Required = true,
-                        SchemaRef = typeFormat.Format
+                        Schema = new Schema() { _ref = typeFormat.Format }
                     });
                 }
 
@@ -346,7 +376,7 @@ namespace SwaggerWcf.Support
 
                     uriTemplate = RemoveParametersDefaultValuesFromUri(uriTemplate);
                 }
-                yield return new Tuple<string, PathAction>(uriTemplate, operation);
+                yield return new Tuple<string, string, Operation>(uriTemplate, httpMethod.ToLowerInvariant(), operation);
             }
         }
 
@@ -391,7 +421,7 @@ namespace SwaggerWcf.Support
                    (wi.BodyStyle == WebMessageBodyStyle.Wrapped || wi.BodyStyle == WebMessageBodyStyle.WrappedResponse);
         }
 
-        private ParameterBase GetParameter(TypeFormat typeFormat,
+        private Parameter GetParameter(TypeFormat typeFormat,
                                            MethodInfo declaration,
                                            MethodInfo implementation,
                                            ParameterInfo parameter,
@@ -422,13 +452,13 @@ namespace SwaggerWcf.Support
 
             if (typeFormat.Type == ParameterType.Object)
             {
-                return new ParameterSchema
+                return new Parameter
                 {
                     Name = name,
                     Description = description,
-                    In = inType,
+                    In = inType.ToString().ToLower(),
                     Required = required,
-                    SchemaRef = typeFormat.Format
+                    Schema = new Schema() { _ref = typeFormat.Format }
                 };
             }
 
@@ -439,36 +469,37 @@ namespace SwaggerWcf.Support
                     Type t = paramType.GetElementType() ?? GetEnumerableType(paramType);
                     TypeFormat subTypeFormat = Helpers.MapSwaggerType(t);
 
-                    ParameterItems items;
+                    Schema items;
 
                     if (subTypeFormat.IsPrimitiveType || subTypeFormat.IsEnum)
                     {
-                        items = new ParameterItems
+                        items = new Schema
                         {
-                            TypeFormat = subTypeFormat
+                            _type = subTypeFormat.Type.ToString().ToLower(),
+                            Format = subTypeFormat.Format
                         };
                     }
                     else
                     {
-                        items = new ParameterItems
+                        items = new Schema
                         {
-                            Items = new ParameterSchema
+                            Items = new Schema
                             {
-
-                                SchemaRef = t.GetModelName()
+                                _ref = t.GetModelName()
                             }
                         };
                     }
 
-                    ParameterPrimitive arrayParam = new ParameterPrimitive
+                    Parameter arrayParam = new Parameter
                     {
                         Name = name,
                         Description = description,
-                        In = inType,
+                        In = inType.ToString().ToLower(),
                         Required = required,
-                        TypeFormat = typeFormat,
-                        Items = items,
-                        CollectionFormat = CollectionFormat.Csv
+                        Type = typeFormat.Type.ToString().ToLower(),
+                        Format = typeFormat.Format,
+                        //Items = items,
+                        CollectionFormat = CollectionFormat.Csv.ToString()
                     };
 
                     //it's a complex type, so we'll need to map it later
@@ -492,25 +523,27 @@ namespace SwaggerWcf.Support
                     }
                     if (!wrappedRequest && isGetRequest)
                     {
-                        ParameterPrimitive paramPrimitive = new ParameterPrimitive
+                        Parameter paramPrimitive = new Parameter
                         {
                             Name = name,
                             Description = description,
-                            In = InType.Query,
+                            In = InType.Query.ToString().ToLower(),
                             Required = required,
-                            TypeFormat = typeFormat
+                            Type = typeFormat.Type.ToString().ToLower(),
+                            Format = typeFormat.Format
                         };
                         return paramPrimitive;
                     }
                     else
                     {
-                        ParameterPrimitive paramPrimitive = new ParameterPrimitive
+                        Parameter paramPrimitive = new Parameter
                         {
                             Name = name,
                             Description = description,
-                            In = inType,
+                            In = inType.ToString().ToLower(),
                             Required = required,
-                            TypeFormat = typeFormat
+                            Type = typeFormat.Type.ToString().ToLower(),
+                            Format = typeFormat.Format
                         };
                         return paramPrimitive;
                     }
@@ -525,23 +558,24 @@ namespace SwaggerWcf.Support
                 typeFormat = new TypeFormat(ParameterType.Object,
                                              HttpUtility.HtmlEncode(paramType.GetModelName()));
 
-                return new ParameterSchema
+                return new Parameter
                 {
                     Name = name,
                     Description = description,
-                    In = inType,
+                    In = inType.ToString().ToLower(),
                     Required = required,
-                    SchemaRef = typeFormat.Format
+                    Schema = new Schema() { _ref = typeFormat.Format }
                 };
             }
 
-            ParameterPrimitive param = new ParameterPrimitive
+            Parameter param = new Parameter
             {
                 Name = name,
                 Description = description,
-                In = inType,
+                In = inType.ToString().ToLower(),
                 Required = required,
-                TypeFormat = typeFormat
+                Type = typeFormat.Type.ToString().ToLower(),
+                Format = typeFormat.Format
             };
 
             return param;
@@ -657,7 +691,7 @@ namespace SwaggerWcf.Support
             }
         }
 
-        private List<Response> GetResponseCodes(MethodInfo implementation, MethodInfo declaration, bool wrappedResponse,
+        private Dictionary<String, Response> GetResponseCodes(MethodInfo implementation, MethodInfo declaration, bool wrappedResponse,
                                                 IList<Type> definitionsTypesList)
         {
             Type returnType = implementation.GetCustomAttributes<SwaggerWcfReturnTypeAttribute>()
@@ -677,15 +711,20 @@ namespace SwaggerWcf.Support
                 implementation.GetCustomAttributes<SwaggerWcfResponseAttribute>().ToList();
             responses = responses.Concat(declaration.GetCustomAttributes<SwaggerWcfResponseAttribute>()).FilterUnique().ToList();
 
-            List<Response> res =
-                responses.Select(ra => ConvertResponse(ra, schema, implementation, declaration, wrappedResponse, definitionsTypesList))
-                    .ToList();
+            Dictionary<String, Response> res = new Dictionary<string, Response>();
+            foreach (var ra in responses)
+            {
+                var kvPair = ConvertResponse(ra, schema, implementation, declaration, wrappedResponse, definitionsTypesList);
+                res.Add(kvPair.Key, kvPair.Value);
+            }
+            //responses.Select(ra => ConvertResponse(ra, schema, implementation, declaration, wrappedResponse, definitionsTypesList))
+            //    .ToDictionary<string, Response>();
 
             if (!res.Any())
             {
-                res.Add(new Response
+                res.Add("default", new Response
                 {
-                    Code = "default",
+                    //Code = "default",
                     Schema = schema
                 });
             }
@@ -693,7 +732,7 @@ namespace SwaggerWcf.Support
             return res;
         }
 
-        private Response ConvertResponse(SwaggerWcfResponseAttribute ra, Schema schema, MethodInfo implementation, MethodInfo declaration,
+        private KeyValuePair<string, Response> ConvertResponse(SwaggerWcfResponseAttribute ra, Schema schema, MethodInfo implementation, MethodInfo declaration,
                                          bool wrappedResponse, IList<Type> definitionsTypesList)
         {
             Schema s = schema;
@@ -702,26 +741,26 @@ namespace SwaggerWcf.Support
                 s = null;
             else if (ra.ResponseTypeOverride != null)
                 s = BuildSchema(ra.ResponseTypeOverride, implementation, declaration, wrappedResponse, definitionsTypesList);
-            else if (schema != null && schema.TypeFormat.Type == ParameterType.Array)
+            else if (schema != null && schema._type == ParameterType.Array.ToString().ToLower())
             {
-                Type type = schema.Ref != null ? Type.GetType(schema.Ref) : null;
+                Type type = schema._ref != null ? Type.GetType(schema._ref) : null;
                 if (type != null)
                 {
                     TypeFormat arrayTypeFormat = Helpers.MapSwaggerType(type);
                     if (arrayTypeFormat.IsPrimitiveType)
                     {
-                        schema.ArrayTypeFormat = arrayTypeFormat;
+                        //schema.ArrayTypeFormat = arrayTypeFormat;
                     }
                 }
             }
-            return new Response
+            return new KeyValuePair<string, Response>(ra.Code, new Response()
             {
-                Code = ra.Code,
+                //Code = ra.Code,
                 Description = ra.Description,
                 Schema = s,
-                Headers = (ra.Headers != null) ? ra.Headers.ToList() : null,
+                //Headers = (ra.Headers != null) ? ra.Headers.ToList() : null,
                 Example = GetExample(ra)
-            };
+            });
         }
 
         private Example GetExample(SwaggerWcfResponseAttribute ra)
@@ -747,8 +786,10 @@ namespace SwaggerWcf.Support
 
             return new Schema
             {
-                TypeFormat = typeFormat,
-                Ref = HttpUtility.HtmlEncode(returnType.GetModelName())
+                //TypeFormat = typeFormat,
+                _type = typeFormat.Type.ToString().ToLower(),
+                Format = typeFormat.Format,
+                _ref = HttpUtility.HtmlEncode(returnType.GetModelName())
             };
         }
 
@@ -785,7 +826,7 @@ namespace SwaggerWcf.Support
                 case ParameterType.Object:
                     return new Schema
                     {
-                        Ref = typeFormat.Format
+                        _ref = typeFormat.Format
                     };
                 case ParameterType.Array:
                     Type t = type.GetElementType() ?? GetEnumerableType(type);
@@ -797,8 +838,9 @@ namespace SwaggerWcf.Support
                     {
                         return new Schema
                         {
-                            TypeFormat = typeFormat,
-                            ArrayTypeFormat = arrayTypeFormat
+                            _type = typeFormat.Type.ToString().ToLower(),
+                            Format = typeFormat.Format,
+                            //ArrayTypeFormat = arrayTypeFormat
                         };
                     }
                     else
@@ -806,15 +848,17 @@ namespace SwaggerWcf.Support
                         definitionsTypesList.Add(t);
                         return new Schema
                         {
-                            TypeFormat = typeFormat,
-                            Ref = HttpUtility.HtmlEncode(t.GetModelName())
+                            _type = typeFormat.Type.ToString().ToLower(),
+                            Format = typeFormat.Format,
+                            _ref = HttpUtility.HtmlEncode(t.GetModelName())
                         };
                     }
                 default:
                     definitionsTypesList.Add(type);
                     return new Schema
                     {
-                        TypeFormat = typeFormat
+                        _type = typeFormat.Type.ToString().ToLower(),
+                        Format = typeFormat.Format,
                     };
             }
         }

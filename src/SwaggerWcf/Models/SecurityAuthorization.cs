@@ -52,67 +52,6 @@ namespace SwaggerWcf.Models
         /// </summary>
         public Dictionary<string, string> Scopes { get; set; }
 
-        public void Serialize(JsonWriter writer)
-        {
-            writer.WriteStartObject();
-
-            if (Type != null)
-            {
-                writer.WritePropertyName("type");
-                writer.WriteValue(Type);
-            }
-
-            if (Description != null)
-            {
-                writer.WritePropertyName("description");
-                writer.WriteValue(Description);
-            }
-
-            if (Name != null)
-            {
-                writer.WritePropertyName("name");
-                writer.WriteValue(Name);
-            }
-
-            if (In != null)
-            {
-                writer.WritePropertyName("in");
-                writer.WriteValue(In);
-            }
-
-            if (Flow != null)
-            {
-                writer.WritePropertyName("flow");
-                writer.WriteValue(Flow);
-            }
-
-            if (AuthorizationUrl != null)
-            {
-                writer.WritePropertyName("authorizationUrl");
-                writer.WriteValue(AuthorizationUrl);
-            }
-
-            if (TokenUrl != null)
-            {
-                writer.WritePropertyName("tokenUrl");
-                writer.WriteValue(TokenUrl);
-            }
-
-            if (Scopes != null)
-            {
-                writer.WritePropertyName("scopes");
-                writer.WriteStartObject();
-
-                foreach (var scope in Scopes)
-                {
-                    writer.WritePropertyName(scope.Key);
-                    writer.WriteValue(scope.Value);
-                }
-
-                writer.WriteEndObject();
-            }
-         
-            writer.WriteEndObject();
-        }
+       
     }
 }
