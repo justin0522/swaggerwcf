@@ -1,9 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SwaggerWcf.Models
 {
@@ -24,7 +19,7 @@ namespace SwaggerWcf.Models
         [JsonProperty("collectionFormat")]
         public string CollectionFormat { get; set; }
 
-         [JsonProperty("default")]
+        [JsonProperty("default")]
         public string _default { get; set; }
 
         // TODO: other properties

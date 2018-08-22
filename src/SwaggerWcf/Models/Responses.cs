@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 
-namespace  SwaggerWcf.Models
+namespace SwaggerWcf.Models
 {
     internal class Responses : Dictionary<string, Response>
     {
-        
+
     }
 }

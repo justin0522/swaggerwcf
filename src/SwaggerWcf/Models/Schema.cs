@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace SwaggerWcf.Models
 {
@@ -28,7 +27,7 @@ namespace SwaggerWcf.Models
         public List<string> _enum { get; set; }
 
         [JsonProperty("type")]
-        public string _type { get; set; }
+        public string Type { get; set; }
 
         [JsonProperty("xml")]
         public Xml xml { get; set; }

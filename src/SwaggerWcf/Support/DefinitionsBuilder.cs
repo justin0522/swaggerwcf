@@ -64,10 +64,10 @@ namespace SwaggerWcf.Support
 
             if (typeFormat.IsPrimitiveType)
                 return null;
-            schema._type = typeFormat.Type.ToString().ToLower();
+            schema.Type = typeFormat.Type.ToString().ToLower();
             schema.Format = typeFormat.Format;
 
-            if (schema._type == ParameterType.Integer.ToString().ToLower() && schema.Format == "enum")
+            if (schema.Type == ParameterType.Integer.ToString().ToLower() && schema.Format == "enum")
             {
                 schema._enum = new List<string>();
 
@@ -82,7 +82,7 @@ namespace SwaggerWcf.Support
                     schema._enum.Add(GetEnumMemberValue(propType, enumName).ToString());
                 }
             }
-            else if (schema._type == ParameterType.Array.ToString().ToLower())
+            else if (schema.Type == ParameterType.Array.ToString().ToLower())
             {
                 Type t = GetEnumerableType(definitionType);
 

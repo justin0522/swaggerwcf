@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace SwaggerWcf.Models
 {
@@ -8,7 +7,7 @@ namespace SwaggerWcf.Models
     {
         public Service()
         {
-            Swagger = "2.0";           
+            Swagger = "2.0";
             Definitions = new Definitions();
         }
 
@@ -41,17 +40,17 @@ namespace SwaggerWcf.Models
 
         [JsonProperty("parameters")]
         public Dictionary<string, Parameter> Parameters { get; set; }
-        
+
         [JsonProperty("responses")]
         public Responses Responses { get; set; }
-        
+
         [JsonProperty("securityDefinitions")]
         public SecurityDefinitions SecurityDefinitions { get; set; }
 
         [JsonProperty("tags")]
-        public List<Tag> Tags { get; set; }   
+        public List<Tag> Tags { get; set; }
 
         [JsonProperty("externalDocs")]
-        public ExternalDocumentation ExternalDocs { get; set; }   
+        public ExternalDocumentation ExternalDocs { get; set; }
     }
 }

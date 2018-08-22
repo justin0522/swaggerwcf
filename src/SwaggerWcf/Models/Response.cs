@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace SwaggerWcf.Models
 {
@@ -16,8 +15,6 @@ namespace SwaggerWcf.Models
         public Dictionary<string, Header> Headers { get; set; }
 
         [JsonProperty("examples")]
-        public Example Example { get; set; }
-
-
+        public Examples Examples { get; set; }
     }
 }

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json;
-using System;
+﻿using Newtonsoft.Json;
 
 namespace SwaggerWcf.Models
 {
@@ -14,7 +12,5 @@ namespace SwaggerWcf.Models
 
         [JsonProperty("email")]
         public string Email { get; set; }
-
-       
     }
 }

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json;
-using System;
+﻿using Newtonsoft.Json;
 
 namespace SwaggerWcf.Models
 {
@@ -11,7 +9,5 @@ namespace SwaggerWcf.Models
 
         [JsonProperty("url")]
         public string Url { get; set; }
-
-
     }
 }

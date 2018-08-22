@@ -475,7 +475,7 @@ namespace SwaggerWcf.Support
                     {
                         items = new Schema
                         {
-                            _type = subTypeFormat.Type.ToString().ToLower(),
+                            Type = subTypeFormat.Type.ToString().ToLower(),
                             Format = subTypeFormat.Format
                         };
                     }
@@ -691,7 +691,7 @@ namespace SwaggerWcf.Support
             }
         }
 
-        private Dictionary<String, Response> GetResponseCodes(MethodInfo implementation, MethodInfo declaration, bool wrappedResponse,
+        private Responses GetResponseCodes(MethodInfo implementation, MethodInfo declaration, bool wrappedResponse,
                                                 IList<Type> definitionsTypesList)
         {
             Type returnType = implementation.GetCustomAttributes<SwaggerWcfReturnTypeAttribute>()
@@ -711,7 +711,7 @@ namespace SwaggerWcf.Support
                 implementation.GetCustomAttributes<SwaggerWcfResponseAttribute>().ToList();
             responses = responses.Concat(declaration.GetCustomAttributes<SwaggerWcfResponseAttribute>()).FilterUnique().ToList();
 
-            Dictionary<String, Response> res = new Dictionary<string, Response>();
+            Responses res = new Responses();
             foreach (var ra in responses)
             {
                 var kvPair = ConvertResponse(ra, schema, implementation, declaration, wrappedResponse, definitionsTypesList);
@@ -741,7 +741,7 @@ namespace SwaggerWcf.Support
                 s = null;
             else if (ra.ResponseTypeOverride != null)
                 s = BuildSchema(ra.ResponseTypeOverride, implementation, declaration, wrappedResponse, definitionsTypesList);
-            else if (schema != null && schema._type == ParameterType.Array.ToString().ToLower())
+            else if (schema != null && schema.Type == ParameterType.Array.ToString().ToLower())
             {
                 Type type = schema._ref != null ? Type.GetType(schema._ref) : null;
                 if (type != null)
@@ -759,20 +759,17 @@ namespace SwaggerWcf.Support
                 Description = ra.Description,
                 Schema = s,
                 //Headers = (ra.Headers != null) ? ra.Headers.ToList() : null,
-                Example = GetExample(ra)
+                Examples = GetExample(ra)
             });
         }
 
-        private Example GetExample(SwaggerWcfResponseAttribute ra)
+        private Examples GetExample(SwaggerWcfResponseAttribute ra)
         {
             if (string.IsNullOrWhiteSpace(ra.ExampleContent))
                 return null;
-
-            return new Example
-            {
-                MimeType = ra.ExampleMimeType,
-                Content = ra.ExampleContent
-            };
+            Dictionary<string, object> result = new Dictionary<string, object>();
+            result.Add(ra.ExampleMimeType, ra.ExampleContent);
+            return (Examples)result;
         }
 
         private Schema BuildSchemaForEnum(Type returnType, IList<Type> definitionsTypesList)
@@ -787,7 +784,7 @@ namespace SwaggerWcf.Support
             return new Schema
             {
                 //TypeFormat = typeFormat,
-                _type = typeFormat.Type.ToString().ToLower(),
+                Type = typeFormat.Type.ToString().ToLower(),
                 Format = typeFormat.Format,
                 _ref = HttpUtility.HtmlEncode(returnType.GetModelName())
             };
@@ -838,7 +835,7 @@ namespace SwaggerWcf.Support
                     {
                         return new Schema
                         {
-                            _type = typeFormat.Type.ToString().ToLower(),
+                            Type = typeFormat.Type.ToString().ToLower(),
                             Format = typeFormat.Format,
                             //ArrayTypeFormat = arrayTypeFormat
                         };
@@ -848,7 +845,7 @@ namespace SwaggerWcf.Support
                         definitionsTypesList.Add(t);
                         return new Schema
                         {
-                            _type = typeFormat.Type.ToString().ToLower(),
+                            Type = typeFormat.Type.ToString().ToLower(),
                             Format = typeFormat.Format,
                             _ref = HttpUtility.HtmlEncode(t.GetModelName())
                         };
@@ -857,7 +854,7 @@ namespace SwaggerWcf.Support
                     definitionsTypesList.Add(type);
                     return new Schema
                     {
-                        _type = typeFormat.Type.ToString().ToLower(),
+                        Type = typeFormat.Type.ToString().ToLower(),
                         Format = typeFormat.Format,
                     };
             }
