@@ -1,6 +1,8 @@
-﻿using SwaggerWcf.Attributes;
+﻿using Newtonsoft.Json;
+using SwaggerWcf.Attributes;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.ServiceModel;
@@ -18,9 +20,12 @@ namespace SwaggerWcf.Test.Sample
             string uri = "http://localhost:9000/wcf";
             try
             {
-                WebHost(uri);
+                string path = @"C:\Users\hfjia\Downloads\swagger.json";
+                ReadSwaggerJson(path);
 
-                SetupSwagger(uri);
+                //WebHost(uri);
+
+                //SetupSwagger(uri);
 
                 Console.ReadLine();
             }
@@ -48,16 +53,28 @@ namespace SwaggerWcf.Test.Sample
             host.Opened += delegate { Console.WriteLine("host open"); };
             host.Open();
         }
+
+        static void ReadSwaggerJson(string path)
+        {
+            string content = File.ReadAllText(path);
+            var swaggerObject = JsonConvert.DeserializeObject<SwaggerWcf.Models.Service>(content, new JsonSerializerSettings() {
+                PreserveReferencesHandling = PreserveReferencesHandling.All,
+                ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
+                MetadataPropertyHandling = MetadataPropertyHandling.Ignore
+            });
+
+            var abcdef = swaggerObject.Definitions;
+        }
     }
 
     [ServiceContract]
     public interface IService1
     {
-        [WebGet(BodyStyle = WebMessageBodyStyle.Bare, RequestFormat = WebMessageFormat.Xml, ResponseFormat = WebMessageFormat.Xml, UriTemplate = "/getdata?value={value}")]
+        [WebGet(BodyStyle = WebMessageBodyStyle.Bare, RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "/getdata?value={value}")]
         [OperationContract]
         string GetData(int value);
 
-        [WebInvoke(BodyStyle = WebMessageBodyStyle.Bare, Method = "POST", RequestFormat = WebMessageFormat.Xml, ResponseFormat = WebMessageFormat.Xml, UriTemplate = "/getdatax")]
+        [WebInvoke(BodyStyle = WebMessageBodyStyle.Bare, Method = "POST", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "/getdatax")]
         [OperationContract]
         CompositeType GetDataUsingDataContract(CompositeType composite);
 

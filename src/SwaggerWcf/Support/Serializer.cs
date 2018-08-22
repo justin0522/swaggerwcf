@@ -6,7 +6,7 @@ using SwaggerWcf.Models;
 
 namespace SwaggerWcf.Support
 {
-    internal class Serializer
+    public class Serializer
     {
         internal static string Process(Service service)
         {

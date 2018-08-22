@@ -2,7 +2,7 @@
 
 namespace SwaggerWcf.Models
 {
-    internal class Examples : Dictionary<string, object>
+    public class Examples : Dictionary<string, object>
     {
 
     }

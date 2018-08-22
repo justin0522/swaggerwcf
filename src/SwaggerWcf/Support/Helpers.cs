@@ -9,8 +9,14 @@ using SwaggerWcf.Models;
 
 namespace SwaggerWcf.Support
 {
-    internal static class Helpers
+    public static class Helpers
     {
+        //public static void ConvertTypeFormat(Schema schema, TypeFormat typeFormat)
+        //{
+        //    schema.Type = typeFormat.Type.ToString().ToLower();
+        //    schema.Format = typeFormat.Format.ToLower();
+        //}
+
         public static TypeFormat MapSwaggerType(Type type, IList<Type> definitions = null)
         {
             //built-in types

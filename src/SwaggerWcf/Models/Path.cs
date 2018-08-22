@@ -2,7 +2,7 @@
 
 namespace SwaggerWcf.Models
 {
-    internal class Path : Dictionary<string, PathItem>
+    public class Path : Dictionary<string, PathItem>
     {
 
     }

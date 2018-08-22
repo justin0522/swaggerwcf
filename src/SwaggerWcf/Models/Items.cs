@@ -2,7 +2,7 @@
 
 namespace SwaggerWcf.Models
 {
-    internal class Items
+    public class Items
     {
         [JsonProperty("type")]
         public string Type { get; set; }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SwaggerWcf.Models
 {
-    internal sealed class Service
+    public sealed class Service
     {
         public Service()
         {
@@ -46,6 +46,9 @@ namespace SwaggerWcf.Models
 
         [JsonProperty("securityDefinitions")]
         public SecurityDefinitions SecurityDefinitions { get; set; }
+
+        [JsonProperty("security")]
+        public SecurityRequirement Security { get; set; }
 
         [JsonProperty("tags")]
         public List<Tag> Tags { get; set; }

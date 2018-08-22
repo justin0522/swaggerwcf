@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SwaggerWcf.Models
 {
-    internal class Operation
+    public class Operation
     {
         [JsonProperty("tags")]
         public List<string> Tags { get; set; }
@@ -51,7 +51,7 @@ namespace SwaggerWcf.Models
         public bool Deprecated { get; set; }
 
         [JsonProperty("security")]
-        public List<KeyValuePair<string, string[]>> Security { get; set; }
+        public SecurityRequirement Security { get; set; }
 
         //Servers //v3
     }

@@ -9,7 +9,7 @@ using SwaggerWcf.Models;
 
 namespace SwaggerWcf.Support
 {
-    internal sealed class DefinitionsBuilder
+    public sealed class DefinitionsBuilder
     {
         public static Definitions Process(IList<string> hiddenTags, IList<string> visibleTags, List<Type> definitionsTypes)
         {
@@ -124,6 +124,42 @@ namespace SwaggerWcf.Support
 
                 if (!string.IsNullOrWhiteSpace(definitionAttr.ModelName))
                     schema.Title = definitionAttr.ModelName;
+            }
+
+            DataContractAttribute dataContractAttr =
+               definitionType.GetCustomAttribute<DataContractAttribute>();
+            if (dataContractAttr != null)
+            {
+                schema.Xml = new Xml();
+                if (string.IsNullOrEmpty(dataContractAttr.Name))
+                {
+                    var strs = schema.Title.Split('.');
+                    var str = strs[strs.Length - 1];
+                    schema.Xml.Name = str;
+                }
+                else
+                {
+                    schema.Xml.Name = dataContractAttr.Name;
+                }
+
+                if (dataContractAttr.Namespace == string.Empty)
+                {
+                    schema.Xml.Namespace = string.Empty;
+                }
+                else if (dataContractAttr.Namespace == null)
+                {
+                    string defaultNS = "http://schemas.datacontract.org/2004/07";
+                    int index = schema.Title.LastIndexOf('.');
+                    if (index > 0)
+                    {
+                        defaultNS += "/" + schema.Title.Substring(0, index);
+                    }
+                    schema.Xml.Namespace = defaultNS;
+                }
+                else
+                {
+                    schema.Xml.Namespace = dataContractAttr.Namespace;
+                }
             }
         }
 

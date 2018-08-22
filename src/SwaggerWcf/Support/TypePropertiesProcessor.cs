@@ -35,7 +35,7 @@ namespace SwaggerWcf.Support
                     {
                         //prop.TypeFormat = new TypeFormat(prop.TypeFormat.Type, HttpUtility.HtmlEncode(t.FullName));
                         prop.TypeFormat = new TypeFormat(prop.TypeFormat.Type, null);
-
+                        //Helpers.ConvertTypeFormat(prop, prop.TypeFormat);
                         TypeFormat st = Helpers.MapSwaggerType(t);
                         if (st.Type == ParameterType.Array || st.Type == ParameterType.Object)
                         {
@@ -46,6 +46,7 @@ namespace SwaggerWcf.Support
                         {
                             prop.Items.TypeFormat = st;
                         }
+                        //Helpers.ConvertTypeFormat(prop.Items, prop.Items.TypeFormat);
                     }
                 }
 
@@ -101,6 +102,7 @@ namespace SwaggerWcf.Support
                 prop.Pattern = regexAttr.Regex;
 
             prop.TypeFormat = typeFormat;
+            //Helpers.ConvertTypeFormat(prop, typeFormat);
 
             if (prop.TypeFormat.Type == ParameterType.Object)
             {
@@ -125,6 +127,7 @@ namespace SwaggerWcf.Support
                     {
                         TypeFormat = subTypeFormat
                     };
+                    //Helpers.ConvertTypeFormat(prop.Items, subTypeFormat);
                 }
             }
 

@@ -2,7 +2,7 @@
 
 namespace SwaggerWcf.Models
 {
-    internal class PathItem
+    public class PathItem
     {
         [JsonProperty("$ref")]
         public string _ref { get; set; }

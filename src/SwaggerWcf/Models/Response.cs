@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SwaggerWcf.Models
 {
-    internal class Response
+    public class Response
     {
         [JsonProperty("description")]
         public string Description { get; set; } = string.Empty;

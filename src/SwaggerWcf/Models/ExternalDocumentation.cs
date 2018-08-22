@@ -2,7 +2,7 @@
 
 namespace SwaggerWcf.Models
 {
-    internal class ExternalDocumentation
+    public class ExternalDocumentation
     {
         [JsonProperty("description")]
         public string Description { get; set; }

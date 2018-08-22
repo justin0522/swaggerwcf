@@ -2,7 +2,7 @@
 
 namespace SwaggerWcf.Models
 {
-    public class Definitions : Dictionary<string, Schema>
+    public class SecurityRequirement : List<Dictionary<string, List<string>>>
     {
 
     }

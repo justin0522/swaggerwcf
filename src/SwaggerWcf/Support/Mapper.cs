@@ -14,7 +14,7 @@ using SwaggerWcf.Models;
 
 namespace SwaggerWcf.Support
 {
-    internal class Mapper
+    public class Mapper
     {
         internal Mapper(IList<string> hiddenTags, List<string> visibleTags)
         {
@@ -289,7 +289,7 @@ namespace SwaggerWcf.Support
                     {
                         Name = attr.Name,
                         Description = attr.Description,
-                        Default = attr.DefaultValue,
+                        _default = attr.DefaultValue,
                         In = InType.Header.ToString().ToLower(),
                         Required = attr.Required,
                         Type = "string",
@@ -880,7 +880,7 @@ namespace SwaggerWcf.Support
             return type.BaseType == typeof(Task) ? type.GetGenericArguments()[0] : type;
         }
 
-        private static List<KeyValuePair<string, string[]>> GetMethodSecurity(MethodInfo implementation, MethodInfo declaration)
+        private static SecurityRequirement GetMethodSecurity(MethodInfo implementation, MethodInfo declaration)
         {
             var securityMethodAttributes = implementation.GetCustomAttributes<SwaggerWcfSecurityAttribute>().ToList();
             var securityInterfaceAttributes = declaration.GetCustomAttributes<SwaggerWcfSecurityAttribute>().ToList();
@@ -890,14 +890,16 @@ namespace SwaggerWcf.Support
             if (securityAttributes.Any() == false)
                 return null;
 
-            var security = new List<KeyValuePair<string, string[]>>();
+            SecurityRequirement security = new SecurityRequirement();
 
             foreach (var securityAttribute in securityAttributes)
             {
-                security.Add(new KeyValuePair<string, string[]>(securityAttribute.SecurityDefinitionName, securityAttribute.SecurityDefinitionScopes));
+                Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
+                result.Add(securityAttribute.SecurityDefinitionName, securityAttribute.SecurityDefinitionScopes.ToList());
+                //security.Add(new KeyValuePair<string, string[]>(securityAttribute.SecurityDefinitionName, securityAttribute.SecurityDefinitionScopes));
+                security.Add(result);
             }
-
-
+            
             return security;
         }
 

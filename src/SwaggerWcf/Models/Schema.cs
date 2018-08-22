@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SwaggerWcf.Models
 {
-    internal class Schema
+    public class Schema
     {
         [JsonProperty("$ref")]
         public string _ref { get; set; } // for references
@@ -30,7 +30,7 @@ namespace SwaggerWcf.Models
         public string Type { get; set; }
 
         [JsonProperty("xml")]
-        public Xml xml { get; set; }
+        public Xml Xml { get; set; }
 
         [JsonProperty("schema")]
         public Schema Items { get; set; } //TODO: Composition and Polymorphism Support
@@ -42,43 +42,57 @@ namespace SwaggerWcf.Models
         public Dictionary<string, Schema> Properties { get; set; }
 
         [JsonProperty("example")]
-        public object Example { get; set; }
+        public object Example { get; set; } // TODO: return type
 
         [JsonProperty("maximum")]
-        public object Maximum { get; set; }
+        public double? Maximum { get; set; }
 
         [JsonProperty("exclusiveMaximum")]
-        public object ExclusiveMaximum { get; set; }
+        public bool? ExclusiveMaximum { get; set; }
 
         [JsonProperty("minimum")]
-        public object Minimum { get; set; }
+        public double? Minimum { get; set; }
 
         [JsonProperty("exclusiveMinimum")]
-        public object ExclusiveMinimum { get; set; }
+        public bool? ExclusiveMinimum { get; set; }
 
         [JsonProperty("maxLength")]
-        public object MaxLength { get; set; }
+        public int? MaxLength { get; set; }
 
         [JsonProperty("minLength")]
-        public object MinLength { get; set; }
+        public int? MinLength { get; set; }
 
         [JsonProperty("pattern")]
-        public object Pattern { get; set; }
+        public string Pattern { get; set; }
 
         [JsonProperty("maxItems")]
-        public object MaxItems { get; set; }
+        public int? MaxItems { get; set; }
 
         [JsonProperty("minItems")]
-        public object MinItems { get; set; }
+        public int? MinItems { get; set; }
 
         [JsonProperty("uniqueItems")]
-        public object UniqueItems { get; set; }
+        public bool UniqueItems { get; set; }
 
         [JsonProperty("multipleOf")]
-        public object MultipleOf { get; set; }
+        public float MultipleOf { get; set; }
 
         // TODO: other properties
 
-        public TypeFormat TypeFormat { get; set; }
+        private TypeFormat tf;
+        [JsonIgnore]
+        public TypeFormat TypeFormat
+        {
+            get { return tf; }
+            set
+            {
+                tf = value;
+                this.Type = value.Type.ToString().ToLower();
+                if (this.Format != null)
+                {
+                    this.Format = value.Format.ToLower();
+                }
+            }
+        }
     }
 }

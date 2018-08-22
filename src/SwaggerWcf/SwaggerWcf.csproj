@@ -74,11 +74,13 @@
     <Compile Include="Models\Parameter.cs" />
     <Compile Include="Models\PathItem.cs" />
     <Compile Include="Models\Responses.cs" />
+    <Compile Include="Models\SchemaType.cs" />
+    <Compile Include="Models\SecurityRequirement.cs" />
     <Compile Include="Models\Tag.cs" />
     <Compile Include="Models\Xml.cs" />
     <Compile Include="Support\EnumerableExtensions.cs" />
     <Compile Include="Support\MethodInfoExtensions.cs" />
-    <Compile Include="Models\SecurityAuthorization.cs" />
+    <Compile Include="Models\SecurityScheme.cs" />
     <Compile Include="Models\InType.cs" />
     <Compile Include="Attributes\SwaggerWcfHiddenAttribute.cs" />
     <Compile Include="Attributes\SwaggerWcfPathAttribute.cs" />

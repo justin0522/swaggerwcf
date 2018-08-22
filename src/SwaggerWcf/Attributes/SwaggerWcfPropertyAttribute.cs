@@ -56,15 +56,17 @@ namespace SwaggerWcf.Attributes
         ///     Maximum allowed value, as modified by ExclusiveMaximum.
         ///     Must be a valid JSON number, and storable as a decimal.
         /// </summary>
-        public string Maximum {
-            get { return _Maximum.HasValue ? _Maximum.ToString() : null; }
-            set { _Maximum = decimal.Parse(value); }
+        public double Maximum
+        {
+            get { return _Maximum.GetValueOrDefault(); }
+            set { _Maximum = value; }
         }
 
         /// <summary>
         ///     If true, the instance is valid if it is strictly less than the value of Maximum.
         /// </summary>
-        public bool ExclusiveMaximum {
+        public bool ExclusiveMaximum
+        {
             get { return _ExclusiveMaximum.GetValueOrDefault(); }
             set { _ExclusiveMaximum = value; }
         }
@@ -73,15 +75,17 @@ namespace SwaggerWcf.Attributes
         ///     Minimum allowed value, as modified by ExclusiveMinimum
         ///     Must be a valid JSON number, and storable as a decimal.
         /// </summary>
-        public string Minimum {
-            get { return _Minimum.HasValue ? _Minimum.ToString() : null; }
-            set { _Minimum = decimal.Parse(value); }
+        public double Minimum
+        {
+            get { return _Minimum.GetValueOrDefault(); }
+            set { _Minimum = value; }
         }
 
         /// <summary>
         ///     If true, the instance is valid if it is strictly greatern than the value of Maximum.
         /// </summary>
-        public bool ExclusiveMinimum {
+        public bool ExclusiveMinimum
+        {
             get { return _ExclusiveMinimum.GetValueOrDefault(); }
             set { _ExclusiveMinimum = value; }
         }
@@ -89,7 +93,8 @@ namespace SwaggerWcf.Attributes
         /// <summary>
         ///     Maximum length.
         /// </summary>
-        public int MaxLength {
+        public int MaxLength
+        {
             get { return _MaxLength.GetValueOrDefault(); }
             set { _MaxLength = value; }
         }
@@ -97,7 +102,8 @@ namespace SwaggerWcf.Attributes
         /// <summary>
         ///     Minimum length
         /// </summary>
-        public int MinLength {
+        public int MinLength
+        {
             get { return _MinLength.GetValueOrDefault(); }
             set { _MinLength = value; }
         }
@@ -113,7 +119,8 @@ namespace SwaggerWcf.Attributes
         ///     An array instance is valid against MaxItems if its size
         ///     is less than, or equal to, the value of this keyword.
         /// </summary>
-        public int MaxItems {
+        public int MaxItems
+        {
             get { return _MaxItems.GetValueOrDefault(); }
             set { _MaxItems = value; }
         }
@@ -122,7 +129,8 @@ namespace SwaggerWcf.Attributes
         ///     An array instance is valid against MaxItems if its size
         ///     is greater than, or equal to, the value of this keyword.
         /// </summary>
-        public int MinItems {
+        public int MinItems
+        {
             get { return _MinItems.GetValueOrDefault(); }
             set { _MinItems = value; }
         }
@@ -130,7 +138,8 @@ namespace SwaggerWcf.Attributes
         /// <summary>
         ///     If true, the instance validates successfully if all of its elements are unique.
         /// </summary>
-        public bool UniqueItems {
+        public bool UniqueItems
+        {
             get { return _UniqueItems.GetValueOrDefault(); }
             set { _UniqueItems = value; }
         }
@@ -139,7 +148,8 @@ namespace SwaggerWcf.Attributes
         ///     A numeric instance is valid against "multipleOf" if the result of
         ///     the division of the instance by this keyword's value is an integer.
         /// </summary>
-        public decimal MultipleOf {
+        public float MultipleOf
+        {
             get { return _MultipleOf.GetValueOrDefault(); }
             set { _MultipleOf = value; }
         }
@@ -148,16 +158,16 @@ namespace SwaggerWcf.Attributes
         // nullable but we need to be able to see whether each value was set or not,
         // so hide a nullable value for each available option.
 
-        internal bool?    _Required         { get; set; }
-        internal bool?    _ExclusiveMaximum { get; set; }
-        internal decimal? _Minimum          { get; set; }
-        internal decimal? _Maximum          { get; set; }
-        internal bool?    _ExclusiveMinimum { get; set; }
-        internal int?     _MaxLength        { get; set; }
-        internal int?     _MinLength        { get; set; }
-        internal int?     _MaxItems         { get; set; }
-        internal int?     _MinItems         { get; set; }
-        internal bool?    _UniqueItems      { get; set; }
-        internal decimal? _MultipleOf       { get; set; }
+        public bool? _Required { get; set; }
+        public bool? _ExclusiveMaximum { get; set; }
+        public double? _Minimum { get; set; }
+        public double? _Maximum { get; set; }
+        public bool? _ExclusiveMinimum { get; set; }
+        public int? _MaxLength { get; set; }
+        public int? _MinLength { get; set; }
+        public int? _MaxItems { get; set; }
+        public int? _MinItems { get; set; }
+        public bool? _UniqueItems { get; set; }
+        public float? _MultipleOf { get; set; }
     }
 }

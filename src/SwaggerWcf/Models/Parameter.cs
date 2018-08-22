@@ -2,7 +2,7 @@
 
 namespace SwaggerWcf.Models
 {
-    internal class Parameter
+    public class Parameter
     {
         [JsonProperty("name")]
         public string Name { get; set; }
@@ -42,7 +42,7 @@ namespace SwaggerWcf.Models
         public string CollectionFormat { get; set; }
 
         [JsonProperty("default")]
-        public string Default { get; set; }
+        public string _default { get; set; }
 
         [JsonProperty("maximum")]
         public float Maximum { get; set; }
