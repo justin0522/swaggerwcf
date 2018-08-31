@@ -78,8 +78,10 @@ namespace SwaggerWcf.Support
             if (dataMemberAttribute != null)
             {
                 if (!string.IsNullOrEmpty(dataMemberAttribute.Name))
+                {
                     prop.Title = dataMemberAttribute.Name;
-
+                    prop.Xml = new Xml() { Name = dataMemberAttribute.Name };
+                }
                 //prop.Required = dataMemberAttribute.IsRequired;
             }
 

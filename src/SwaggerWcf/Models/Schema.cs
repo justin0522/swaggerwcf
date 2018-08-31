@@ -43,7 +43,7 @@ namespace SwaggerWcf.Models
 
         [JsonProperty("example")]
         public object Example { get; set; } // TODO: return type
-
+        /*
         [JsonProperty("maximum")]
         public double? Maximum { get; set; }
 
@@ -76,7 +76,7 @@ namespace SwaggerWcf.Models
 
         [JsonProperty("multipleOf")]
         public float MultipleOf { get; set; }
-
+        */
         // TODO: other properties
 
         private TypeFormat tf;
