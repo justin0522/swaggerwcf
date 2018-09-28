@@ -11,10 +11,10 @@ namespace SwaggerWcf.Models
             Definitions = new Definitions();
         }
 
-        [JsonProperty("swagger")]
+        [JsonProperty("swagger", Required = Required.Always)]
         public string Swagger { get; set; }
 
-        [JsonProperty("info")]
+        [JsonProperty("info", Required = Required.Always)]
         public Info Info { get; set; }
 
         [JsonProperty("host")]
@@ -32,7 +32,7 @@ namespace SwaggerWcf.Models
         [JsonProperty("produces")]
         public List<string> Produces { get; set; }
 
-        [JsonProperty("paths")]
+        [JsonProperty("paths", Required = Required.Always)]
         public Path Paths { get; set; }
 
         [JsonProperty("definitions")]

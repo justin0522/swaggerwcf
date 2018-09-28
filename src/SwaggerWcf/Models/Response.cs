@@ -5,7 +5,7 @@ namespace SwaggerWcf.Models
 {
     public class Response
     {
-        [JsonProperty("description")]
+        [JsonProperty("description", Required = Required.Always)]
         public string Description { get; set; } = string.Empty;
 
         [JsonProperty("schema")]

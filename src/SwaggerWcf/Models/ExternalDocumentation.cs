@@ -7,7 +7,7 @@ namespace SwaggerWcf.Models
         [JsonProperty("description")]
         public string Description { get; set; }
 
-        [JsonProperty("url")]
+        [JsonProperty("url", Required = Required.Always)]
         public string Url { get; set; }
 
     }

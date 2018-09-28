@@ -4,7 +4,7 @@ namespace SwaggerWcf.Models
 {
     public class Tag
     {
-        [JsonProperty("name")]
+        [JsonProperty("name", Required = Required.Always)]
         public string Name { get; set; }
 
         [JsonProperty("description")]

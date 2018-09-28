@@ -4,7 +4,7 @@ namespace SwaggerWcf.Models
 {
     public class Info
     {
-        [JsonProperty("title")]
+        [JsonProperty("title", Required = Required.Always)]
         public string Title { get; set; }
 
         [JsonProperty("description")]
@@ -19,7 +19,7 @@ namespace SwaggerWcf.Models
         [JsonProperty("license")]
         public InfoLicense License { get; set; }
 
-        [JsonProperty("version")]
+        [JsonProperty("version", Required = Required.Always)]
         public string Version { get; set; }
     }
 }

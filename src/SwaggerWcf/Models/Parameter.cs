@@ -4,10 +4,10 @@ namespace SwaggerWcf.Models
 {
     public class Parameter
     {
-        [JsonProperty("name")]
+        [JsonProperty("name", Required = Newtonsoft.Json.Required.Always)]
         public string Name { get; set; }
 
-        [JsonProperty("in")]
+        [JsonProperty("in", Required = Newtonsoft.Json.Required.Always)]
         public string In { get; set; }
 
         [JsonProperty("description")]

@@ -61,10 +61,10 @@ namespace SwaggerWcf.Models
 
         [JsonProperty("minLength")]
         public int? MinLength { get; set; }
-
+        */
         [JsonProperty("pattern")]
         public string Pattern { get; set; }
-
+        /*
         [JsonProperty("maxItems")]
         public int? MaxItems { get; set; }
 

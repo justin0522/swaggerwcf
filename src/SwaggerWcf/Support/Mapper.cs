@@ -807,7 +807,7 @@ namespace SwaggerWcf.Support
                                   ?? declaration.GetCustomAttribute<SwaggerWcfReturnTypeAttribute>()?.Name
                                   ?? funcName + "Result";
 
-                TypeBuilder typeBuilder = new TypeBuilder(typeName + "Wrapper");
+                TypeBuilder typeBuilder = new TypeBuilder(typeName + "Response");
 
                 typeBuilder.AddField(typeName, type, true);
 

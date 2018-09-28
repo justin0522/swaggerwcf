@@ -38,7 +38,7 @@ namespace SwaggerWcf.Models
         /// <summary>
         /// v2
         /// </summary>
-        [JsonProperty("responses")]
+        [JsonProperty("responses", Required = Required.Always)]
         public Responses Responses { get; set; }
 
         /// <summary>
